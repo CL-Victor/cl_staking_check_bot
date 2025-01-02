@@ -27,4 +27,4 @@ jobs:
           CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
           ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
           ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
-        run: python cll_staking_check_bot.py
+        run: python cl_staking_check_bot.py
