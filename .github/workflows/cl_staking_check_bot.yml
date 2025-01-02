@@ -8,9 +8,17 @@ on:
 jobs:
   staking_pool_alert_job:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: last_posted.txt
+          key: staking-alert-cache
 
       - name: Set up Python environment
         uses: actions/setup-python@v4
@@ -28,3 +36,10 @@ jobs:
           ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
           ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
         run: python cl_staking_check_bot.py
+
+      - name: Save cache
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: last_posted.txt
+          key: staking-alert-cache
