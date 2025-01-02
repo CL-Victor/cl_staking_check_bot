@@ -43,15 +43,20 @@ def get_last_posted_amount():
     if os.path.exists(LAST_POSTED_FILE):
         with open(LAST_POSTED_FILE, "r") as file:
             try:
-                return int(file.read().strip())
+                amount = int(file.read().strip())
+                print(f"Last posted amount read from file: {amount} LINK")
+                return amount
             except ValueError:
+                print("Error reading last posted amount. File content is invalid.")
                 return None
+    print("No previous posted amount found. File does not exist.")
     return None
 
 # Function to save the last posted staking amount
 def save_last_posted_amount(amount):
     with open(LAST_POSTED_FILE, "w") as file:
         file.write(str(amount))
+    print(f"Saved last posted amount: {amount} LINK")
 
 # Main logic
 def main():
@@ -88,4 +93,8 @@ def main():
     save_last_posted_amount(available_for_staking)
 
 if __name__ == "__main__":
+    # Ensure LAST_POSTED_FILE exists if cached
+    if not os.path.exists(LAST_POSTED_FILE):
+        with open(LAST_POSTED_FILE, "w") as f:
+            f.write("")  # Create an empty file if it doesn't exist
     main()
