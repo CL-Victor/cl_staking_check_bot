@@ -85,7 +85,7 @@ def main():
     message = (
         f"⚠️ LINK Staking pool alert: {formatted_value} $LINK available for staking.\n"
         f"⏩ Stake at https://staking.chain.link/\n\n"
-        f"#chainlink"
+        f"#Chainlink"
     )
     post_to_twitter(message, auth)
 
