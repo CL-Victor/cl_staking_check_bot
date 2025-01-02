@@ -1,16 +1,12 @@
 import requests
 from requests_oauthlib import OAuth1
 import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-# Twitter API credentials
-consumer_key = os.environ.get("CONSUMER_KEY")
-consumer_secret = os.environ.get("CONSUMER_SECRET")
-access_token = os.environ.get("ACCESS_TOKEN_BOT")
-access_token_secret = os.environ.get("ACCESS_TOKEN_SECRET_BOT")
+# Twitter API credentials (retrieved from environment variables in GitHub Actions)
+consumer_key = os.getenv("CONSUMER_KEY")
+consumer_secret = os.getenv("CONSUMER_SECRET")
+access_token = os.getenv("ACCESS_TOKEN_BOT")
+access_token_secret = os.getenv("ACCESS_TOKEN_SECRET_BOT")
 
 # OAuth connection
 def connect_to_oauth(consumer_key, consumer_secret, access_token, access_token_secret):
@@ -43,7 +39,6 @@ def post_to_twitter(message, auth):
 def main():
     auth = connect_to_oauth(consumer_key, consumer_secret, access_token, access_token_secret)
     max_pool_value = 40875000  # Maximum pool value in LINK
-    last_known_value = max_pool_value
 
     # Fetch current staking data
     current_value = fetch_staking_data()
@@ -53,19 +48,16 @@ def main():
         print("No changes detected or pool is full.")
         return
 
-    if current_value < last_known_value:
-        # Calculate available staking amount
-        available_for_staking = max_pool_value - current_value
-        formatted_value = f"{available_for_staking:,}"  # Format with commas
-        message = (
-            f"⚠️ LINK Staking pool alert:\n"
-            f"{formatted_value} LINK available for staking.\n"
-            f"Stake at https://staking.chain.link/\n\n"
-            f"$LINK #chainlink"
-        )
-        post_to_twitter(message, auth)
-    else:
-        print("No staking opportunity detected.")
+    # Calculate available staking amount if pool value decreases
+    available_for_staking = max_pool_value - current_value
+    formatted_value = f"{available_for_staking:,}"  # Format with commas
+    message = (
+        f"⚠️ LINK Staking pool alert:\n"
+        f"{formatted_value} LINK available for staking.\n"
+        f"Stake at https://staking.chain.link/\n\n"
+        f"$LINK #chainlink"
+    )
+    post_to_twitter(message, auth)
 
 if __name__ == "__main__":
     main()
