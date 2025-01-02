@@ -8,6 +8,9 @@ consumer_secret = os.getenv("CONSUMER_SECRET")
 access_token = os.getenv("ACCESS_TOKEN_BOT")
 access_token_secret = os.getenv("ACCESS_TOKEN_SECRET_BOT")
 
+# File to store the last posted staking amount
+LAST_POSTED_FILE = "last_posted.txt"
+
 # OAuth connection
 def connect_to_oauth(consumer_key, consumer_secret, access_token, access_token_secret):
     return OAuth1(consumer_key, consumer_secret, access_token, access_token_secret)
@@ -35,6 +38,21 @@ def post_to_twitter(message, auth):
     else:
         print("Tweet posted successfully.")
 
+# Function to get the last posted staking amount
+def get_last_posted_amount():
+    if os.path.exists(LAST_POSTED_FILE):
+        with open(LAST_POSTED_FILE, "r") as file:
+            try:
+                return int(file.read().strip())
+            except ValueError:
+                return None
+    return None
+
+# Function to save the last posted staking amount
+def save_last_posted_amount(amount):
+    with open(LAST_POSTED_FILE, "w") as file:
+        file.write(str(amount))
+
 # Main logic
 def main():
     auth = connect_to_oauth(consumer_key, consumer_secret, access_token, access_token_secret)
@@ -50,14 +68,24 @@ def main():
 
     # Calculate available staking amount if pool value decreases
     available_for_staking = max_pool_value - current_value
+
+    # Check the last posted amount
+    last_posted_amount = get_last_posted_amount()
+    if last_posted_amount == available_for_staking:
+        print(f"No changes since the last post: {available_for_staking} LINK available.")
+        return
+
+    # Format the message and post to Twitter
     formatted_value = f"{available_for_staking:,}"  # Format with commas
     message = (
-        f"⚠️ LINK Staking pool alert:\n"
-        f"{formatted_value} LINK available for staking.\n"
-        f"Stake at https://staking.chain.link/\n\n"
-        f"$LINK #chainlink"
+        f"⚠️ LINK Staking pool alert: {formatted_value} $LINK available for staking.\n"
+        f"⏩ Stake at https://staking.chain.link/\n\n"
+        f"#chainlink"
     )
     post_to_twitter(message, auth)
+
+    # Save the current amount as the last posted amount
+    save_last_posted_amount(available_for_staking)
 
 if __name__ == "__main__":
     main()
