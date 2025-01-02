@@ -1,0 +1,30 @@
+name: Staking Pool Alert Bot
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # Run every 5 minutes
+  workflow_dispatch: null
+
+jobs:
+  staking_pool_alert_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests requests_oauthlib python-dotenv
+
+      - name: Run staking pool alert script
+        env:
+          CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
+          CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+          ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
+          ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
+        run: python cll_staking_check_bot.py
