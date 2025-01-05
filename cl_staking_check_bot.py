@@ -35,58 +35,73 @@ async def capture_screenshot(url, output_file):
     Captures a screenshot of the given URL after a fixed delay.
     """
     print(f"Opening {url}...")
-    browser = await launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
-    page = await browser.newPage()
+    try:
+        browser = await launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
+        page = await browser.newPage()
 
-    # Set the viewport size to capture a larger portion of the page
-    await page.setViewport({"width": 1920, "height": 1080})
+        # Set the viewport size to capture a larger portion of the page
+        await page.setViewport({"width": 1920, "height": 1080})
 
-    # Navigate to the website
-    await page.goto(url)
-    print("Waiting for 3 seconds to ensure the page loads...")
-    await asyncio.sleep(3)  # Wait for 3 seconds
+        # Navigate to the website
+        await page.goto(url)
+        print("Waiting for 3 seconds to ensure the page loads...")
+        await asyncio.sleep(3)  # Wait for 3 seconds
 
-    # Take a screenshot
-    print(f"Saving screenshot to {output_file}...")
-    await page.screenshot({"path": output_file, "fullPage": True})
+        # Take a screenshot
+        print(f"Saving screenshot to {output_file}...")
+        await page.screenshot({"path": output_file, "fullPage": True})
 
-    await browser.close()
-    print("Screenshot captured successfully.")
+        await browser.close()
+        print("Screenshot captured successfully.")
+        return True
+    except Exception as e:
+        print(f"Error capturing screenshot: {e}")
+        return False
 
 def crop_screenshot(input_file, output_file, crop_box):
     """
     Crops the given screenshot to the specified dimensions.
     """
-    print(f"Cropping screenshot: {input_file}")
-    with Image.open(input_file) as img:
-        cropped_img = img.crop(crop_box)
-        cropped_img.save(output_file)
-    print(f"Cropped screenshot saved to {output_file}")
+    try:
+        print(f"Cropping screenshot: {input_file}")
+        with Image.open(input_file) as img:
+            cropped_img = img.crop(crop_box)
+            cropped_img.save(output_file)
+        print(f"Cropped screenshot saved to {output_file}")
+        return True
+    except Exception as e:
+        print(f"Error cropping screenshot: {e}")
+        return False
 
 def connect_to_oauth(consumer_key, consumer_secret, access_token, access_token_secret):
     return OAuth1(consumer_key, consumer_secret, access_token, access_token_secret)
 
 def post_to_twitter(message, media_file, auth):
     """
-    Posts a tweet with an attached image.
+    Posts a tweet with or without an attached image.
     """
-    # Upload media to Twitter
-    print(f"Uploading media: {media_file}")
-    upload_url = "https://upload.twitter.com/1.1/media/upload.json"
-    with open(media_file, "rb") as file:
-        files = {"media": file}
-        response = requests.post(upload_url, auth=auth, files=files)
-        if response.status_code == 200:
-            media_id = response.json()["media_id_string"]
-            print(f"Media uploaded successfully: {media_id}")
-        else:
-            print(f"Failed to upload media: {response.status_code}, {response.text}")
-            return
+    media_id = None
+    if media_file and os.path.exists(media_file):
+        try:
+            print(f"Uploading media: {media_file}")
+            upload_url = "https://upload.twitter.com/1.1/media/upload.json"
+            with open(media_file, "rb") as file:
+                files = {"media": file}
+                response = requests.post(upload_url, auth=auth, files=files)
+                if response.status_code == 200:
+                    media_id = response.json()["media_id_string"]
+                    print(f"Media uploaded successfully: {media_id}")
+                else:
+                    print(f"Failed to upload media: {response.status_code}, {response.text}")
+        except Exception as e:
+            print(f"Error uploading media: {e}")
 
     # Post the tweet
     print("Posting tweet...")
     tweet_url = "https://api.twitter.com/2/tweets"
-    payload = {"text": message, "media": {"media_ids": [media_id]}}
+    payload = {"text": message}
+    if media_id:
+        payload["media"] = {"media_ids": [media_id]}
     response = requests.post(tweet_url, auth=auth, json=payload)
     if response.status_code != 201:
         print(f"Failed to post tweet: {response.status_code}, {response.text}")
@@ -144,15 +159,17 @@ def main():
     clean_existing_screenshots(SCREENSHOT_FILE, CROPPED_FILE)
 
     # Step 2: Capture a new screenshot
-    asyncio.get_event_loop().run_until_complete(capture_screenshot(URL, SCREENSHOT_FILE))
+    screenshot_success = asyncio.get_event_loop().run_until_complete(capture_screenshot(URL, SCREENSHOT_FILE))
 
-    # Step 3: Crop the new screenshot
-    crop_box = (1970, 235, 2400, 600)
-    crop_screenshot(SCREENSHOT_FILE, CROPPED_FILE, crop_box)
+    # Step 3: Crop the new screenshot (only if the screenshot succeeded)
+    crop_success = False
+    if screenshot_success:
+        crop_box = (1970, 235, 2400, 600)  # Updated crop box
+        crop_success = crop_screenshot(SCREENSHOT_FILE, CROPPED_FILE, crop_box)
 
-    # Step 4: Post to Twitter with the cropped image
+    # Step 4: Post to Twitter with or without an image
     message = f"⚠️ LINK Staking pool alert: {available_for_staking:,} LINK available for staking.\n⏩ Stake at https://staking.chain.link/\n\n#Chainlink"
-    post_to_twitter(message, CROPPED_FILE, auth)
+    post_to_twitter(message, CROPPED_FILE if crop_success else None, auth)
 
     # Step 5: Save the current amount as the last posted amount
     save_last_posted_amount(available_for_staking)
