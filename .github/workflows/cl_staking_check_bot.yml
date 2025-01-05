@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests requests_oauthlib
+          pip install requests requests_oauthlib pyppeteer pillow
 
       - name: Run staking pool alert bot
         env:
