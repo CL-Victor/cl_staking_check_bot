@@ -48,5 +48,7 @@ The **LINK Staking Pool Alert Bot** monitors the Chainlink staking pool and post
 └── README.md                 # Repository documentation
 ```
 
-![LINK Staking Pool Alert](LINK_diamondhand.gif)
+<div align="center">
+  <img src="LINK_diamondhand.gif" alt="LINK Staking Pool Alert" width="600">
+</div>
 
