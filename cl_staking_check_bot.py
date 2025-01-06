@@ -66,7 +66,7 @@ def crop_screenshot(input_file, output_file, crop_box):
         print(f"Cropping screenshot: {input_file}")
         with Image.open(input_file) as img:
             cropped_img = img.crop(crop_box)
-            cropped_img.save(output_file)
+            cropped_img.save(output_file, format="PNG")  # Explicitly save as PNG
         print(f"Cropped screenshot saved to {output_file}")
         return True
     except Exception as e:
@@ -88,6 +88,7 @@ def post_to_twitter(message, media_file, auth):
             with open(media_file, "rb") as file:
                 files = {"media": file}
                 response = requests.post(upload_url, auth=auth, files=files)
+                print(f"Upload response: {response.status_code}, {response.text}")
                 if response.status_code == 200:
                     media_id = response.json()["media_id_string"]
                     print(f"Media uploaded successfully: {media_id}")
@@ -103,6 +104,7 @@ def post_to_twitter(message, media_file, auth):
     if media_id:
         payload["media"] = {"media_ids": [media_id]}
     response = requests.post(tweet_url, auth=auth, json=payload)
+    print(f"Tweet response: {response.status_code}, {response.text}")
     if response.status_code != 201:
         print(f"Failed to post tweet: {response.status_code}, {response.text}")
     else:
