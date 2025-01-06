@@ -36,6 +36,14 @@ jobs:
           ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
           ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
         run: python cl_staking_check_bot.py
+        
+      - name: Upload screenshot artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: |
+            screenshot.png
+            cropped_screenshot.png
 
       - name: Save cache
         if: always()
