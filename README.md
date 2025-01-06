@@ -28,7 +28,7 @@ The **LINK Staking Pool Alert Bot** monitors the Chainlink staking pool and post
 2. **Posting Alerts**:
    - Tweets the available amount of LINK with the custom GIF:
      ```text
-     🔥 LINK Staking Pool Update: 5,454 LINK available to stake! 🔓
+     🔥 LINK Staking Pool Update: 5,454 LINK just freed up! 🔓
      💎 Stake now: https://staking.chain.link #Chainlink
      ```
 
