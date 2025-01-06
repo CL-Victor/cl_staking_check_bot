@@ -46,3 +46,7 @@ The **LINK Staking Pool Alert Bot** monitors the Chainlink staking pool and post
 ├── .github/workflows/
 │   └── staking_pool_alert.yml  # GitHub Actions workflow
 └── README.md                 # Repository documentation
+```
+
+![LINK Staking Pool Alert](LINK_diamondhand.gif)
+
