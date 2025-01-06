@@ -45,7 +45,7 @@ async def capture_screenshot(url, output_file):
         # Navigate to the website
         await page.goto(url)
         print("Waiting for 3 seconds to ensure the page loads...")
-        await asyncio.sleep(3)  # Wait for 3 seconds
+        await asyncio.sleep(7)  # Wait for 7 seconds
 
         # Take a screenshot
         print(f"Saving screenshot to {output_file}...")
