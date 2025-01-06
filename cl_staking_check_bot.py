@@ -112,7 +112,7 @@ def main():
         return
 
     # Prepare the tweet message
-    message = f"🔥 $LINK Staking Pool Update: {available_for_staking:,} just freed up! 🔓\n💎 Stake now: https://staking.chain.link/\n\n#Chainlink"
+    message = f"🔥 LINK Staking Pool Update: {available_for_staking:,} $LINK just freed up! 🔓\n💎 Stake now: https://staking.chain.link/\n\n#Chainlink"
 
     # Post the tweet with the GIF
     post_to_twitter(message, GIF_FILE, auth)
