@@ -3,7 +3,7 @@ name: Staking Pool Alert Bot
 on:
   schedule:
     - cron: '*/5 * * * *'  # Run every 5 minutes
-  workflow_dispatch: null
+  workflow_dispatch:
 
 jobs:
   staking_pool_alert_job:
@@ -27,15 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests requests_oauthlib
-
-      - name: Verify GIF file
-        run: |
-          if [ ! -f "LINK_diamondhand.gif" ]; then
-            echo "Error: GIF file LINK_diamondhand.gif not found!" && exit 1
-          else
-            echo "GIF file found: LINK_diamondhand.gif"
-          fi
+          pip install requests requests_oauthlib pyppeteer pillow
+          # Explicitly download Chromium for pyppeteer
+          python -m pyppeteer install
 
       - name: Run staking pool alert bot
         env:
@@ -44,6 +38,14 @@ jobs:
           ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
           ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
         run: python cl_staking_check_bot.py
+        
+      - name: Upload screenshot artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: |
+            screenshot.png
+            cropped_screenshot.png
 
       - name: Save cache
         if: always()
