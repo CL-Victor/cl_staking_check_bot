@@ -32,7 +32,7 @@ def clean_existing_screenshots(*files):
 
 async def capture_screenshot(url, output_file):
     """
-    Captures a screenshot of the given URL after a fixed delay, with extra debug steps.
+    Captures a screenshot of the given URL after a delay, with extra debug steps.
     """
     print(f"Opening {url}...")
     try:
@@ -54,10 +54,6 @@ async def capture_screenshot(url, output_file):
         # Navigate to the website
         await page.goto(url)
         print("Waiting up to 10 seconds to ensure the page loads...")
-        # Optionally wait for a specific element if you know one:
-        # await page.waitForSelector("footer", timeout=10000)
-
-        # Or just do a static wait if necessary
         await asyncio.sleep(10)
 
         # Take a screenshot
@@ -212,8 +208,7 @@ def main():
     # Step 3: Crop the new screenshot (only if the screenshot succeeded)
     crop_success = False
     if screenshot_success:
-        # Crop box is known to be correct, per your note
-        crop_box = (1970, 235, 2400, 600)
+        crop_box = (1970, 235, 2400, 600)  # Known good crop
         crop_success = crop_screenshot(SCREENSHOT_FILE, CROPPED_FILE, crop_box)
 
     # Step 4: Post to Twitter with or without an image
