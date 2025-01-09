@@ -28,9 +28,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests requests_oauthlib pyppeteer pillow
-          # Explicitly download Chromium for pyppeteer
-          python -m pyppeteer install
 
+      # Force Pyppeteer to download Chromium by launching it once
+      - name: Pre-download Chromium
+        run: |
+          python -c "import asyncio; from pyppeteer import launch; \
+          asyncio.get_event_loop().run_until_complete(launch())"
+      
       - name: Run staking pool alert bot
         env:
           CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
@@ -38,7 +42,7 @@ jobs:
           ACCESS_TOKEN_BOT: ${{ secrets.ACCESS_TOKEN_BOT }}
           ACCESS_TOKEN_SECRET_BOT: ${{ secrets.ACCESS_TOKEN_SECRET_BOT }}
         run: python cl_staking_check_bot.py
-        
+
       - name: Upload screenshot artifacts
         uses: actions/upload-artifact@v3
         with:
