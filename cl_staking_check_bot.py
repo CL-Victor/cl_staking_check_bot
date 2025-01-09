@@ -106,13 +106,19 @@ def main():
         return
 
     available_for_staking = max_pool_value - current_value
+
+    # Check if available amount is below the threshold
+    if available_for_staking < 50:
+        print(f"Available amount ({available_for_staking} LINK) is less than 50. Skipping tweet.")
+        return
+
     last_posted_amount = get_last_posted_amount()
     if last_posted_amount == available_for_staking:
         print(f"No changes since the last post: {available_for_staking} LINK available.")
         return
 
     # Prepare the tweet message
-    message = f"🔥 LINK Staking Pool Update: {available_for_staking:,} $LINK just freed up! 🔓\n💎 Stake now: https://staking.chain.link/\n\n#Chainlink"
+    message = f"🔥 LINK Staking Pool Update: {available_for_staking:,} $LINK available to stake! 🔓\n💎 Stake now: https://staking.chain.link/\n\n#Chainlink"
 
     # Post the tweet with the GIF
     post_to_twitter(message, GIF_FILE, auth)
